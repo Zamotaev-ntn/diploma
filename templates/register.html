@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Регистрация</title>
+  </head>
+  <body>
+    <h1>Регистрация</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div>
+        {{ form.email.label }}<br>
+        {{ form.email(size=32) }}
+      </div>
+      <div>
+        {{ form.password.label }}<br>
+        {{ form.password(size=32) }}
+      </div>
+      <div>
+        {{ form.confirm_password.label }}<br>
+        {{ form.confirm_password(size=32) }}
+      </div>
+      <div>
+        {{ form.submit() }}
+      </div>
+    </form>
+  </body>
+</html>
