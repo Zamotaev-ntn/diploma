@@ -1,10 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, flash
-from flask_login import LoginManager
+from flask import Flask, render_template, redirect, url_for, flash, request
+from flask_login import LoginManager, login_user, current_user
 from config import Config
-from forms import RegisterForm
+from forms import RegisterForm, LoginForm
 from models import User
 from extensions import db
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -49,6 +49,27 @@ def register():
         return redirect(url_for("register"))
 
     return render_template("register.html", form=form)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+    
+    form = LoginForm()
+    
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        
+        if user and check_password_hash(user.password_hash, form.password.data):
+            login_user(user)
+            flash("Вы вошли", "success")
+            next_page = request.args.get("next")
+            return redirect(next_page) if next_page else redirect(url_for("dashboard"))
+        else:
+            flash("Неверный email или пароль", "danger")
+    
+    return render_template("login.html", form=form)
 
 
 if __name__ == "__main__":
