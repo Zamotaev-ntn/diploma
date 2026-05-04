@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
-from flask_login import LoginManager, login_user, current_user
+from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from config import Config
 from forms import RegisterForm, LoginForm
 from models import User
@@ -70,6 +70,14 @@ def login():
             flash("Неверный email или пароль", "danger")
     
     return render_template("login.html", form=form)
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("Вы вышли", "info")
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":
