@@ -5,15 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Система мониторинга когнитивной нагрузки</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+      }
+      .hero-section {
+        color: white;
+        text-align: center;
+      }
+      .nav-section {
+        position: fixed;
+        top: 0;
+        right: 0;
+        padding: 20px 30px;
+        z-index: 100;
+      }
+      .nav-section a {
+        color: white;
+        text-decoration: none;
+        margin-left: 20px;
+        font-weight: 500;
+      }
+      .nav-section a:hover {
+        text-decoration: underline;
+      }
+      .alerts-section {
+        position: fixed;
+        top: 80px;
+        right: 30px;
+        width: 300px;
+        z-index: 100;
+      }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="text-center">
-            <h1>Система мониторинга когнитивной нагрузки</h1>
-            <h2 class="text-muted">Дипломный проект</h2>
-            <button class="btn btn-primary mt-3">Начать работу</button>
-        </div>
+    <div class="nav-section">
+      {% if current_user.is_authenticated %}
+        <span>{{ current_user.email }}</span>
+        <a href="{{ url_for('dashboard') }}">Кабинет</a>
+        <a href="{{ url_for('logout') }}">Выход</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Вход</a>
+        <a href="{{ url_for('register') }}">Регистрация</a>
+      {% endif %}
     </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alerts-section">
+          {% for category, message in messages %}
+            {% if category == "success" %}
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% elif category == "danger" %}
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% elif category == "info" %}
+              <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% else %}
+              <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="container">
+      <div class="hero-section">
+        <h1 class="display-4 mb-4">Система мониторинга когнитивной нагрузки</h1>
+        <h2 class="lead mb-4">Дипломный проект</h2>
+        
+        {% if current_user.is_authenticated %}
+          <p class="mb-4">Добро пожаловать, {{ current_user.email }}!</p>
+          <a href="{{ url_for('dashboard') }}" class="btn btn-light btn-lg">Перейти в кабинет</a>
+        {% else %}
+          <p class="mb-4">Начните работу прямо сейчас</p>
+          <a href="{{ url_for('login') }}" class="btn btn-light btn-lg me-2">Войти</a>
+          <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">Зарегистрироваться</a>
+        {% endif %}
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
