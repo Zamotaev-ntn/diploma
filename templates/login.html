@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Вход</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fb;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 420px;
+        margin: 60px auto;
+        padding: 24px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+      }
+      h1 {
+        margin-top: 0;
+        font-size: 24px;
+      }
+      .field {
+        margin-bottom: 16px;
+      }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 15px;
+      }
+      .error {
+        color: #c0392b;
+        font-size: 13px;
+        margin-top: 6px;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        background: #2d6cdf;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #2357b3;
+      }
+      .footer {
+        margin-top: 18px;
+        text-align: center;
+        font-size: 14px;
+      }
+      .footer a {
+        color: #2d6cdf;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Вход</h1>
+
+      <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="field">
+          {{ form.email.label }}
+          {{ form.email(type="email") }}
+          {% for error in form.email.errors %}
+            <div class="error">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="field">
+          {{ form.password.label }}
+          {{ form.password(type="password") }}
+          {% for error in form.password.errors %}
+            <div class="error">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="field">
+          {{ form.submit() }}
+        </div>
+      </form>
+
+      <div class="footer">
+        Нет аккаунта? <a href="{{ url_for('register') }}">Зарегистрироваться</a>
+      </div>
+    </div>
+  </body>
+</html>
