@@ -80,6 +80,12 @@ def logout():
     return redirect(url_for("index"))
 
 
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html", user=current_user)
+
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
