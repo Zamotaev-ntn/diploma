@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from config import Config
 from forms import RegisterForm, LoginForm
-from models import User
+from models import User, Test, Question, UserResult
 from extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from decorators import admin_required
@@ -91,6 +91,51 @@ def dashboard():
 @admin_required
 def admin():
     return render_template("admin.html", user=current_user)
+
+
+@app.route("/admin/tests")
+@admin_required
+def admin_tests():
+    tests = Test.query.order_by(Test.created_at.desc()).all()
+    return render_template("admin_tests.html", tests=tests)
+
+
+@app.route("/admin/tests/create", methods=["GET", "POST"])
+@admin_required
+def admin_tests_create():
+    if request.method == "POST":
+        title = request.form.get("title")
+        description = request.form.get("description")
+        if not title:
+            flash("Название теста обязательно", "danger")
+            return render_template("admin_test_form.html")
+
+        test = Test(title=title, description=description, author_id=current_user.id)
+        db.session.add(test)
+        db.session.commit()
+        flash("Тест создан", "success")
+        return redirect(url_for("admin_tests"))
+    return render_template("admin_test_form.html")
+
+
+@app.route("/admin/tests/<int:test_id>/delete", methods=["POST", "GET"])
+@admin_required
+def admin_tests_delete(test_id):
+    test = Test.query.get_or_404(test_id)
+    Question.query.filter_by(test_id=test.id).delete()
+    UserResult.query.filter_by(test_id=test.id).delete()
+    db.session.delete(test)
+    db.session.commit()
+    flash("Тест и связанные данные удалены", "success")
+    return redirect(url_for("admin_tests"))
+
+
+@app.route("/admin/tests/<int:test_id>/questions")
+@admin_required
+def admin_test_questions(test_id):
+    test = Test.query.get_or_404(test_id)
+    questions = Question.query.filter_by(test_id=test.id).all()
+    return render_template("admin_questions.html", test=test, questions=questions)
 
 
 if __name__ == "__main__":
