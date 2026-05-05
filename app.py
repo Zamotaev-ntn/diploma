@@ -5,6 +5,7 @@ from forms import RegisterForm, LoginForm
 from models import User
 from extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from decorators import admin_required
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -84,6 +85,12 @@ def logout():
 @login_required
 def dashboard():
     return render_template("dashboard.html", user=current_user)
+
+
+@app.route("/admin")
+@admin_required
+def admin():
+    return render_template("admin.html", user=current_user)
 
 
 if __name__ == "__main__":
