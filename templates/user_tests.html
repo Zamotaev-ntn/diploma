@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Доступные тесты</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body class="bg-light">
+    <div class="container py-5">
+      <h1 class="mb-4">Доступные тесты</h1>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mb-3">На дашборд</a>
+      
+      {% if tests %}
+        <div class="row">
+          {% for test in tests %}
+          <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">{{ test.title }}</h5>
+                <p class="card-text">{{ test.description or "Описание отсутствует" }}</p>
+                <small class="text-muted d-block mb-3">
+                  Создан: {{ test.created_at.strftime('%d.%m.%Y %H:%M') }}<br>
+                  Вопросов: {{ test.questions|length }}
+                </small>
+                <a href="{{ url_for('take_test', test_id=test.id) }}" class="btn btn-primary">Пройти тест</a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          Тестов пока нет.
+        </div>
+      {% endif %}
+    </div>
+  </body>
+</html>

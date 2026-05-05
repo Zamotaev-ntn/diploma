@@ -11,6 +11,12 @@ import json
 app = Flask(__name__)
 app.config.from_object(Config)
 
+@app.template_filter('fromjson')
+def fromjson_filter(s):
+    if s is None:
+        return []
+    return json.loads(s)
+
 db.init_app(app)
 
 login_manager = LoginManager()
@@ -226,6 +232,52 @@ def admin_question_delete(question_id):
     db.session.commit()
     flash("Вопрос удален", "success")
     return redirect(url_for("admin_test_questions", test_id=test_id))
+
+
+@app.route("/tests")
+@login_required
+def user_tests():
+    tests = Test.query.all()
+    return render_template("user_tests.html", tests=tests)
+
+
+@app.route("/tests/<int:test_id>/take", methods=["GET", "POST"])
+@login_required
+def take_test(test_id):
+    test = Test.query.get_or_404(test_id)
+    questions = Question.query.filter_by(test_id=test.id).all()
+    
+    if request.method == "POST":
+        answers = {}
+        for question in questions:
+            if question.question_type == Question.TYPE_SINGLE:
+                answer = request.form.get(f"question_{question.id}")
+                if answer:
+                    answers[str(question.id)] = answer
+            elif question.question_type == Question.TYPE_MULTIPLE:
+                answers_list = request.form.getlist(f"question_{question.id}")
+                if answers_list:
+                    answers[str(question.id)] = answers_list
+            elif question.question_type == Question.TYPE_TEXT:
+                answer = request.form.get(f"question_{question.id}")
+                if answer:
+                    answers[str(question.id)] = answer
+            elif question.question_type == Question.TYPE_SCALE:
+                answer = request.form.get(f"question_{question.id}")
+                if answer:
+                    answers[str(question.id)] = answer
+        
+        result = UserResult(
+            user_id=current_user.id,
+            test_id=test.id,
+            answers_json=json.dumps(answers)
+        )
+        db.session.add(result)
+        db.session.commit()
+        flash("Тест пройден", "success")
+        return redirect(url_for("user_tests"))
+    
+    return render_template("take_test.html", test=test, questions=questions)
 
 
 if __name__ == "__main__":
