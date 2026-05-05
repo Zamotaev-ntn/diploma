@@ -6,6 +6,7 @@ from models import User, Test, Question, UserResult
 from extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from decorators import admin_required
+import json
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -136,6 +137,95 @@ def admin_test_questions(test_id):
     test = Test.query.get_or_404(test_id)
     questions = Question.query.filter_by(test_id=test.id).all()
     return render_template("admin_questions.html", test=test, questions=questions)
+
+
+@app.route("/admin/tests/<int:test_id>/questions/create", methods=["GET", "POST"])
+@admin_required
+def admin_question_create(test_id):
+    test = Test.query.get_or_404(test_id)
+    if request.method == "POST":
+        question_text = request.form.get("question_text")
+        question_type = request.form.get("question_type")
+        options_text = request.form.get("options_text", "")
+        
+        if not question_text or not question_type:
+            flash("Нехватает текста или типа вопроса", "danger")
+            return render_template("admin_question_form.html", test=test, question=None, options_text='')
+        
+        options = None
+        if question_type in [Question.TYPE_SINGLE, Question.TYPE_MULTIPLE]:
+            if not options_text.strip():
+                flash("Для этого типа ребуются варианты", "danger")
+            else:
+                options_list = [opt.strip() for opt in options_text.split("\n") if opt.strip()]
+                options = json.dumps(options_list)
+        
+        question = Question(test_id=test.id, text=question_text, question_type=question_type, options=options)
+        db.session.add(question)
+        db.session.commit()
+        flash("Вопрос создан", "success")
+        return redirect(url_for("admin_test_questions", test_id=test.id))
+    
+    return render_template("admin_question_form.html", test=test, question=None, options_text='')
+
+
+@app.route("/admin/questions/<int:question_id>/edit", methods=["GET", "POST"])
+@admin_required
+def admin_question_edit(question_id):
+    question = Question.query.get_or_404(question_id)
+    test = Test.query.get_or_404(question.test_id)
+    
+    if request.method == "POST":
+        question_text = request.form.get("question_text")
+        question_type = request.form.get("question_type")
+        options_text = request.form.get("options_text", "")
+        
+        if not question_text or not question_type:
+            flash("Нехватает текста или типа вопроса", "danger")
+            options_text = ''
+            if question.options:
+                try:
+                    options_list = json.loads(question.options)
+                    options_text = '\n'.join(options_list)
+                except:
+                    options_text = ''
+            return render_template("admin_question_form.html", test=test, question=question, options_text=options_text)
+        
+        question.text = question_text
+        question.question_type = question_type
+        question.options = None
+        
+        if question_type in [Question.TYPE_SINGLE, Question.TYPE_MULTIPLE]:
+            if not options_text.strip():
+                flash("Для этого типа ребуются варианты", "danger")
+            else:
+                options_list = [opt.strip() for opt in options_text.split("\n") if opt.strip()]
+                question.options = json.dumps(options_list)
+        
+        db.session.commit()
+        flash("Вопрос отредактирован", "success")
+        return redirect(url_for("admin_test_questions", test_id=test.id))
+    
+    options_text = ''
+    if question.options:
+        try:
+            options_list = json.loads(question.options)
+            options_text = '\n'.join(options_list)
+        except:
+            options_text = ''
+    
+    return render_template("admin_question_form.html", test=test, question=question, options_text=options_text)
+
+
+@app.route("/admin/questions/<int:question_id>/delete", methods=["POST", "GET"])
+@admin_required
+def admin_question_delete(question_id):
+    question = Question.query.get_or_404(question_id)
+    test_id = question.test_id
+    db.session.delete(question)
+    db.session.commit()
+    flash("Вопрос удален", "success")
+    return redirect(url_for("admin_test_questions", test_id=test_id))
 
 
 if __name__ == "__main__":
