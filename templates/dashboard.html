@@ -58,11 +58,18 @@
         cursor: pointer;
         border: none;
       }
-      .btn-logout {
+      .btn-primary {
+        background: #2d6cdf;
+        color: white;
+      }
+      .btn-primary:hover {
+        background: #2357b3;
+      }
+      .btn-admin {
         background: #c0392b;
         color: white;
       }
-      .btn-logout:hover {
+      .btn-admin:hover {
         background: #a93226;
       }
     </style>
@@ -83,6 +90,9 @@
       </div>
 
       <div class="actions">
+        {% if user.is_admin() %}
+          <a href="{{ url_for('admin') }}" class="btn btn-admin">Админ-панель</a>
+        {% endif %}
         <a href="{{ url_for('logout') }}" class="btn btn-logout">Выход</a>
       </div>
     </div>

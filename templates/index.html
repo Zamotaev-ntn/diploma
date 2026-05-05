@@ -46,6 +46,9 @@
       {% if current_user.is_authenticated %}
         <span>{{ current_user.email }}</span>
         <a href="{{ url_for('dashboard') }}">Кабинет</a>
+        {% if current_user.is_admin() %}
+          <a href="{{ url_for('admin') }}">Админ-панель</a>
+        {% endif %}
         <a href="{{ url_for('logout') }}">Выход</a>
       {% else %}
         <a href="{{ url_for('login') }}">Вход</a>
