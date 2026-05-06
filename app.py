@@ -249,15 +249,19 @@ def take_test(test_id):
     
     if request.method == "POST":
         answers = {}
+        score = 0
+        
         for question in questions:
             if question.question_type == Question.TYPE_SINGLE:
                 answer = request.form.get(f"question_{question.id}")
                 if answer:
                     answers[str(question.id)] = answer
+                    score += 1
             elif question.question_type == Question.TYPE_MULTIPLE:
                 answers_list = request.form.getlist(f"question_{question.id}")
                 if answers_list:
                     answers[str(question.id)] = answers_list
+                    score += len(answers_list)
             elif question.question_type == Question.TYPE_TEXT:
                 answer = request.form.get(f"question_{question.id}")
                 if answer:
@@ -266,11 +270,13 @@ def take_test(test_id):
                 answer = request.form.get(f"question_{question.id}")
                 if answer:
                     answers[str(question.id)] = answer
+                    score += int(answer)
         
         result = UserResult(
             user_id=current_user.id,
             test_id=test.id,
-            answers_json=json.dumps(answers)
+            answers_json=json.dumps(answers),
+            score=score
         )
         db.session.add(result)
         db.session.commit()
