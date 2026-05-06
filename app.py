@@ -6,6 +6,7 @@ from models import User, Test, Question, UserResult
 from extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from decorators import admin_required
+from sqlalchemy import func
 import json
 
 app = Flask(__name__)
@@ -98,6 +99,23 @@ def dashboard():
 @admin_required
 def admin():
     return render_template("admin.html", user=current_user)
+
+
+@app.route("/admin/stats")
+@admin_required
+def admin_stats():
+    total_users = User.query.count()
+    total_tests = Test.query.count()
+    total_attempts = UserResult.query.count()
+    average_scores = db.session.query(Test.id, Test.title, func.avg(UserResult.score)).join(UserResult, Test.id == UserResult.test_id).group_by(Test.id).all()
+    daily_attempts = db.session.query(func.date(UserResult.completed_at), func.count()).group_by(func.date(UserResult.completed_at)).all()
+    
+    return render_template("admin_stats.html", 
+                          total_users=total_users, 
+                          total_tests=total_tests, 
+                          total_attempts=total_attempts,
+                          average_scores=average_scores,
+                          daily_attempts=daily_attempts)
 
 
 @app.route("/admin/tests")
