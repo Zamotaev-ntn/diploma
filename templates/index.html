@@ -46,6 +46,8 @@
       {% if current_user.is_authenticated %}
         <span>{{ current_user.email }}</span>
         <a href="{{ url_for('dashboard') }}">Кабинет</a>
+        <a href="{{ url_for('user_tests') }}">Тесты</a>
+        <a href="{{ url_for('my_results') }}">Мои результаты</a>
         {% if current_user.is_admin() %}
           <a href="{{ url_for('admin') }}">Админ-панель</a>
         {% endif %}

@@ -79,6 +79,7 @@
       <h1>Добро пожаловать!</h1>
 
       <div class="info-section">
+
         <div class="info-row">
           <div class="info-label">Email</div>
           <div class="info-value">{{ user.email }}</div>
@@ -90,6 +91,8 @@
       </div>
 
       <div class="actions">
+        <a href="{{ url_for('user_tests') }}" class="btn btn-primary">Тесты</a>
+        <a href="{{ url_for('my_results') }}" class="btn btn-primary">Мои результаты</a>
         {% if user.is_admin() %}
           <a href="{{ url_for('admin') }}" class="btn btn-admin">Админ-панель</a>
         {% endif %}

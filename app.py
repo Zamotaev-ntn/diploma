@@ -286,6 +286,13 @@ def take_test(test_id):
     return render_template("take_test.html", test=test, questions=questions)
 
 
+@app.route("/my_results")
+@login_required
+def my_results():
+    results = UserResult.query.filter_by(user_id=current_user.id).all()
+    return render_template("my_results.html", results=results)
+
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()

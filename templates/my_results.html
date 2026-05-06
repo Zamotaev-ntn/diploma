@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Мои результаты</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body class="bg-light">
+    <div class="container py-5">
+      <h1 class="mb-4">Мои результаты</h1>
+      <a href="{{ url_for('user_tests') }}" class="btn btn-secondary mb-4">Назад к тестам</a>
+
+      {% if results %}
+        <div class="table-responsive">
+          <table class="table table-bordered bg-white">
+            <thead>
+              <tr>
+                <th>Тест</th>
+                <th>Дата прохождения</th>
+                <th>Баллы</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for result in results %}
+              <tr>
+                <td>{{ result.test.title if result.test else 'Удалённый тест' }}</td>
+                <td>{{ result.completed_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>{{ result.score }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-info">Вы ещё не прошли ни одного теста.</div>
+      {% endif %}
+    </div>
+  </body>
+</html>
