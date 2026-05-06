@@ -72,7 +72,7 @@
 
     <script>
       const ctx = document.getElementById('attemptsChart').getContext('2d');
-      const dailyData = {{ daily_attempts | tojson }};
+      const dailyData = {{ daily_data | tojson }};
       
       const labels = dailyData.map(item => item[0]);
       const data = dailyData.map(item => item[1]);

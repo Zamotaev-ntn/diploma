@@ -109,13 +109,14 @@ def admin_stats():
     total_attempts = UserResult.query.count()
     average_scores = db.session.query(Test.id, Test.title, func.avg(UserResult.score)).join(UserResult, Test.id == UserResult.test_id).group_by(Test.id).all()
     daily_attempts = db.session.query(func.date(UserResult.completed_at), func.count()).group_by(func.date(UserResult.completed_at)).all()
+    daily_data = [[date.isoformat(), count] for date, count in daily_attempts]
     
     return render_template("admin_stats.html", 
                           total_users=total_users, 
                           total_tests=total_tests, 
                           total_attempts=total_attempts,
                           average_scores=average_scores,
-                          daily_attempts=daily_attempts)
+                          daily_data=daily_data)
 
 
 @app.route("/admin/tests")
